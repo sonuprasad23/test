@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+      "target": "ES2020",
+      "useDefineForClassFields": true,
+      "lib": ["ES2020", "DOM", "DOM.Iterable"],
+      "module": "ESNext",
+      "skipLibCheck": true,
+  
+      /* Bundler mode */
+      "moduleResolution": "bundler", // Recommended for Vite
+      "allowImportingTsExtensions": true, // If using .ts/.tsx extensions in imports
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "noEmit": true, // Vite handles emission
+      "jsx": "react-jsx", // Standard JSX transform
+  
+      /* Linting */
+      "strict": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noFallthroughCasesInSwitch": true,
+  
+      /* Added for better DX */
+      "esModuleInterop": true, // Enables default imports for CommonJS modules
+      "forceConsistentCasingInFileNames": true,
+      "baseUrl": ".", // Allows absolute paths from src
+      "paths": {
+        "@/*": ["src/*"] // Example: Allows import '@/components/Hero'
+      }
+    },
+    "include": ["src", "vite.config.ts"], // Include vite config
+    "references": [{ "path": "./tsconfig.node.json" }]
+  }

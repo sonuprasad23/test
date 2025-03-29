@@ -1,0 +1,21 @@
+/* frontend/src/index.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Optional: Add base styles or font imports here */
+body {
+  @apply bg-gray-950 text-white antialiased; /* Example base styles */
+}
+
+/* Optional: Add custom component styles */
+/* .my-custom-component { ... } */
+
+/* Optional: Add fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}

@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "composite": true,
+      "skipLibCheck": true,
+      "module": "ESNext",
+      "moduleResolution": "bundler", // Align with main tsconfig
+      "allowSyntheticDefaultImports": true, // Common for Node tooling
+      "strict": true, // Keep strict checking
+      "noEmit": true // Usually don't need to emit for config files
+    },
+    "include": ["vite.config.ts", "postcss.config.js", "tailwind.config.js", ".eslintrc.cjs"] // Include relevant config files
+  }
