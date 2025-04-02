@@ -2,30 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Using public/vite.svg, update if you change the icon -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- PWA Manifest and Theme Color -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#09090b">
-    <!-- Title -->
     <title>Deepfake Detector</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!-- Main application script -->
     <script type="module" src="/src/index.tsx"></script>
-    <!-- Optional: Service Worker registration (if keeping PWA features) -->
+    <!-- Service worker script (optional) -->
     <script>
-      // if ('serviceWorker' in navigator) {
+      // if ('serviceWorker' in navigator && import.meta.env.PROD) { // Only register in production
       //   window.addEventListener('load', () => {
-      //     navigator.serviceWorker.register('/service-worker.js')
-      //       .then(registration => {
-      //         console.log('ServiceWorker registration successful with scope: ', registration.scope);
-      //       }, err => {
-      //         console.log('ServiceWorker registration failed: ', err);
-      //       });
+      //     navigator.serviceWorker.register('/service-worker.js').then(reg => {
+      //       console.log('SW registered!', reg);
+      //     }).catch(err => {
+      //       console.error('SW registration failed:', err);
+      //     });
       //   });
       // }
     </script>

@@ -1,3 +1,21 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production
+/dist
+/build
+
+# Misc
+.DS_Store
+*.pem
+
 # Logs
 logs
 *.log
@@ -7,31 +25,24 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependency directories
-node_modules/
-.pnp
-.pnp.js
-
-# Build output
-dist
-dist-ssr
-coverage
-
-# Environment variables
+# Environment Variables - IMPORTANT!
 .env*
 !.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite local settings
 *.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-
-# Vite / Development
-*.local

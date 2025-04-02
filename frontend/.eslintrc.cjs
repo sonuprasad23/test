@@ -1,37 +1,51 @@
 module.exports = {
-    root: true,
-    env: { browser: true, es2020: true, node: true }, // Added node env for config files
-    extends: [
-      'eslint:recommended',
-      'plugin:@typescript-eslint/recommended', // Use recommended TS rules
-      // Consider adding stricter TS rules if desired: 'plugin:@typescript-eslint/recommended-requiring-type-checking'
-      'plugin:react/recommended', // Use recommended React rules
-      'plugin:react/jsx-runtime', // Use new JSX transform rules
-      'plugin:react-hooks/recommended', // Enforce Rules of Hooks
+  root: true,
+  env: { browser: true, es2020: true, node: true },
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    // Consider adding if you want stricter type checks (requires parserOptions.project)
+    // 'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:react/recommended',
+    'plugin:react/jsx-runtime', // For new JSX Transform
+    'plugin:react-hooks/recommended',
+  ],
+  ignorePatterns: [
+      'dist',
+      '.eslintrc.cjs',
+      'vite.config.ts',
+      'postcss.config.js',
+      'tailwind.config.js',
+      'node_modules' // Explicitly ignore node_modules
     ],
-    ignorePatterns: ['dist', '.eslintrc.cjs', 'vite.config.ts', 'postcss.config.js', 'tailwind.config.js'], // Ignore build output and config files
-    parser: '@typescript-eslint/parser',
-    // If using stricter TS rules, specify project path:
-    // parserOptions: {
-    //   ecmaVersion: 'latest',
-    //   sourceType: 'module',
-    //   project: ['./tsconfig.json', './tsconfig.node.json'],
-    //   tsconfigRootDir: __dirname,
-    // },
-    plugins: ['react-refresh'], // Vite plugin for HMR
-    settings: {
-      react: {
-        version: 'detect', // Automatically detect React version
-      },
+  parser: '@typescript-eslint/parser',
+  // Uncomment and configure if using stricter TS rules:
+  // parserOptions: {
+  //   ecmaVersion: 'latest',
+  //   sourceType: 'module',
+  //   project: ['./tsconfig.json', './tsconfig.node.json'],
+  //   tsconfigRootDir: __dirname,
+  // },
+  plugins: ['react-refresh'],
+  settings: {
+    react: {
+      version: 'detect',
     },
-    rules: {
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-      // Add or customize rules here
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // Warn on unused vars, allow underscore prefix
-      'react/prop-types': 'off', // Disable prop-types as we use TypeScript
-      'no-console': ['warn', { allow: ['warn', 'error'] }], // Allow console.warn and console.error
-    },
-  }
+  },
+  rules: {
+    'react-refresh/only-export-components': [
+      'warn',
+      { allowConstantExport: true },
+    ],
+    // Custom rules:
+    'react/prop-types': 'off', // Using TypeScript for types
+    '@typescript-eslint/no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_', // Allow unused vars/args starting with _
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+     }],
+     // Allow console logs during development, but maybe warn/error in production build
+     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+     'react/no-unescaped-entities': 'off', // Allow apostrophes etc. directly in JSX text
+  },
+}

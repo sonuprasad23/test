@@ -1,72 +1,120 @@
-// Basic service worker for PWA features (caching)
-const CACHE_NAME = 'deepfake-detector-v1';
-const URLS_TO_CACHE = [
+// frontend/public/service-worker.js
+// Basic service worker - enhance if full PWA offline capabilities are needed
+
+const CACHE_NAME = 'deepfake-detector-cache-v1';
+// Add essential assets expected to be available offline
+const CORE_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  // Add paths to your main JS/CSS bundles if known, or cache dynamically
-  // '/assets/index-*.js',
-  // '/assets/index-*.css',
-  '/vite.svg', // Add static assets
+  // Add main icons if needed offline immediately
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-512.png',
+  '/vite.svg'
+  // JS/CSS bundles are usually added dynamically or via build tool integration
 ];
 
-// Install event: Cache core assets
 self.addEventListener('install', event => {
-  console.log('[ServiceWorker] Install');
+  console.log('[SW] Install event');
+  // Pre-cache core assets during install
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[ServiceWorker] Caching app shell');
-        return cache.addAll(URLS_TO_CACHE);
+        console.log('[SW] Caching core assets');
+        return cache.addAll(CORE_ASSETS);
       })
-      .then(() => self.skipWaiting()) // Activate worker immediately
+      .then(() => self.skipWaiting()) // Activate immediately
+      .catch(error => console.error('[SW] Caching failed during install:', error))
   );
 });
 
-// Activate event: Clean up old caches
 self.addEventListener('activate', event => {
-  console.log('[ServiceWorker] Activate');
-  const cacheWhitelist = [CACHE_NAME];
+  console.log('[SW] Activate event');
+  // Remove old caches during activation
+  const currentCaches = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            console.log('[ServiceWorker] Deleting old cache:', cacheName);
+          if (!currentCaches.includes(cacheName)) {
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => self.clients.claim()) // Take control of clients immediately
+    }).then(() => self.clients.claim()) // Take control of open clients
   );
 });
 
-// Fetch event: Serve cached assets or fetch from network
 self.addEventListener('fetch', event => {
-  // Skip cross-origin requests like those for Google Fonts or APIs
-  if (!event.request.url.startsWith(self.location.origin)) {
+  // Only handle GET requests for simplicity
+  if (event.request.method !== 'GET') {
     return;
   }
 
-   // Use Cache-First strategy for app shell assets
-   if (URLS_TO_CACHE.includes(new URL(event.request.url).pathname)) {
-    event.respondWith(
-      caches.match(event.request).then(response => {
-        return response || fetch(event.request);
-      })
-    );
-    return; // Important: Stop processing here for cache-first assets
+  // Ignore API calls or other non-cacheable assets
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith('/api/')) {
+    // console.log('[SW] Ignoring API fetch:', event.request.url);
+    return;
   }
 
+  // Cache-First Strategy for core assets (defined in CORE_ASSETS)
+  if (CORE_ASSETS.includes(url.pathname)) {
+    event.respondWith(
+      caches.match(event.request)
+        .then(cachedResponse => {
+          if (cachedResponse) {
+            // console.log('[SW] Serving from cache:', event.request.url);
+            return cachedResponse;
+          }
+          // console.log('[SW] Core asset not in cache, fetching:', event.request.url);
+          return fetch(event.request); // Fetch if not in cache
+        })
+    );
+    return; // Don't continue further
+  }
 
-  // Use Network-First strategy for other requests (e.g., API calls if they were same-origin)
-  // Or simply let them pass through (fetch) if they are API calls etc.
+  // Network-First Strategy for other assets (like JS/CSS chunks, images)
+  // Try network, fallback to cache, optionally cache successful network responses
   event.respondWith(
-    fetch(event.request).catch(() => {
-      // Optional: Return a fallback offline page if fetch fails
-      // return caches.match('/offline.html');
-    })
+    fetch(event.request)
+      .then(networkResponse => {
+        // Check if we received a valid response
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse; // Return error response as is
+        }
+
+        // IMPORTANT: Clone the response. A response is a stream
+        // and because we want the browser to consume the response
+        // as well as the cache consuming the response, we need
+        // to clone it so we have two streams.
+        const responseToCache = networkResponse.clone();
+
+        caches.open(CACHE_NAME)
+          .then(cache => {
+            // console.log('[SW] Caching new resource:', event.request.url);
+            cache.put(event.request, responseToCache);
+          });
+
+        return networkResponse;
+      })
+      .catch(error => {
+        // Network request failed, try serving from cache
+        // console.log('[SW] Network failed, trying cache for:', event.request.url);
+        return caches.match(event.request)
+          .then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Optional: Return an offline fallback page if nothing is cached
+            // console.log('[SW] Not in cache either, request failed:', event.request.url);
+            // return caches.match('/offline.html'); // Make sure '/offline.html' is cached
+            return new Response("Network error and resource not cached.", {
+              status: 408, // Request Timeout
+              headers: { 'Content-Type': 'text/plain' }
+            });
+          });
+      })
   );
 });
